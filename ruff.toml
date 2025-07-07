@@ -1,0 +1,18 @@
+# Assume Python 3.12
+target-version = "py312"
+extend-exclude = ["migrations"]
+
+[format]
+quote-style = "single"
+
+[lint]
+select = ["E", "F", "UP", "B", "SIM", "Q"]
+ignore = []
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+
+[lint.flake8-quotes]
+inline-quotes = "single"
