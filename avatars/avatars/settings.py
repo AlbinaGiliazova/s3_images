@@ -27,7 +27,7 @@ class EnvSettings(BaseSettings):
 
     # S3 settings
     aws_access_key_id: str = 'minioadmin'
-    aws_secret_access_key: str = 'minioadmin'
+    aws_secret_access_key: str = 'miniopassword'
     aws_storage_bucket_name: str = 'avatars'
     aws_s3_endpoint_url: str = 'http://minio:9000'
     aws_s3_region_name: str = 'us-east-1'
@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     's3_avatars.apps.S3AvatarsConfig',
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -157,3 +158,7 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None

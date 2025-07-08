@@ -1,6 +1,6 @@
 from io import BytesIO
 from PIL import Image
-from django.core.files.base import ContentFile
+from django.core.files.uploadedfile import InMemoryUploadedFile
 import uuid
 
 
@@ -23,8 +23,15 @@ def process_avatar(image_file):
 
     # Сжать в JPEG (качество 85, оптимизация)
     output_io = BytesIO()
-    image.save(output_io, format='JPEG', optimize=True, quality=85)
+    image.convert('RGB').save(output_io, format='JPEG', quality=85, optimize=True)
     output_io.seek(0)
 
     # Вернуть файл, пригодный для Django ImageField
-    return ContentFile(output_io.read(), name=file_name)
+    return InMemoryUploadedFile(
+        file=output_io,
+        field_name=image_file.field.name,
+        name=file_name,
+        content_type='image/jpeg',
+        size=output_io.getbuffer().nbytes,
+        charset=None,
+    )

@@ -15,11 +15,11 @@ cd avatars
 docker-compose up --build
 
 3. Проведите миграции  
-docker-compose exec web python manage.py migrate
+docker-compose exec django python manage.py migrate
 
 4. Проверьте работу обработки и загрузки  
 Вы можете загрузить аватар через Django shell:
-docker-compose exec web python manage.py shell
+docker-compose exec django python manage.py shell
 
 В интерактивном режиме выполните:
 from s3_images.models import UserProfile
@@ -28,7 +28,7 @@ with open('путь/к/тестовомуизображению.jpg', 'rb') as f
 print(profile.avatar.url)  # Должна быть ссылка на S3
 
 5. Запустите тесты  
-docker-compose exec web python manage.py test
+docker-compose exec django python manage.py test tests
 
 Ожидается:  
 - Ваш аватар уменьшен по размеру  
@@ -52,8 +52,8 @@ http://localhost:9001
 Важные команды
 
 - docker-compose up — старт всего проекта  
-- docker-compose exec web python manage.py migrate — миграции  
-- docker-compose exec web python manage.py test — тесты  
+- docker-compose exec django python manage.py migrate — миграции  
+- docker-compose exec django python manage.py test tests — тесты  
 - docker-compose down — остановить проект
 
 Контакты/автор  
