@@ -48,4 +48,4 @@ http://localhost:9001
 
 Контакты/автор  
 ✉️ Альбина Гилязова.
-Телеграм @GliazovaAA
+Телеграм @GiliazovaAA
