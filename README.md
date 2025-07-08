@@ -17,17 +17,7 @@ docker-compose up --build
 3. Проведите миграции  
 docker-compose exec django python manage.py migrate
 
-4. Проверьте работу обработки и загрузки  
-Вы можете загрузить аватар через Django shell:
-docker-compose exec django python manage.py shell
-
-В интерактивном режиме выполните:
-from s3_images.models import UserProfile
-with open('путь/к/тестовомуизображению.jpg', 'rb') as f:
-    profile = UserProfile.objects.create(avatar=f)
-print(profile.avatar.url)  # Должна быть ссылка на S3
-
-5. Запустите тесты  
+4. Запустите тесты  
 docker-compose exec django python manage.py test tests
 
 Ожидается:  
