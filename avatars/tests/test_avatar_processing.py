@@ -1,20 +1,11 @@
-import io
 from django.test import TestCase, override_settings
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.conf import settings
 from PIL import Image
 from storages.backends.s3boto3 import S3Boto3Storage
-import boto3
-
-from s3_avatars.models import UserProfile
 from django.contrib.auth.models import User
 
-
-def create_test_image(format='JPEG', size=(300, 200), color=(255, 0, 0)):
-    file = io.BytesIO()
-    Image.new('RGB', size, color).save(file, format)
-    file.seek(0)
-    return file
+from s3_avatars.models import UserProfile
+from fixtures import create_test_image, setup_s3_bucket, cleanup_s3_bucket
 
 
 @override_settings(
@@ -27,16 +18,7 @@ def create_test_image(format='JPEG', size=(300, 200), color=(255, 0, 0)):
 )
 class AvatarProcessingTestCase(TestCase):
     def setUp(self):
-        # Подключение к S3 совместимому endpoint (MinIO)
-        s3 = boto3.client(
-            's3',
-            endpoint_url=settings.AWS_S3_ENDPOINT_URL,
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-            region_name=settings.AWS_S3_REGION_NAME,
-        )
-        # Создание бакета, если его нет
-        s3.create_bucket(Bucket=settings.AWS_STORAGE_BUCKET_NAME)
+        self.s3 = setup_s3_bucket()
 
     def test_avatar_processing(self):
         # 1. Генерируем и загружаем файл
@@ -66,16 +48,4 @@ class AvatarProcessingTestCase(TestCase):
         )
 
     def tearDown(self):
-        s3 = boto3.client(
-            's3',
-            endpoint_url=settings.AWS_S3_ENDPOINT_URL,
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-            region_name=settings.AWS_S3_REGION_NAME,
-        )
-        # Удалить все файлы
-        resp = s3.list_object_sv2(Bucket=settings.AWS_STORAGE_BUCKET_NAME)
-        for obj in resp.get(
-            'Contents',
-        ):
-            s3.delete_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=obj['Key'])
+        cleanup_s3_bucket(self.s3)
