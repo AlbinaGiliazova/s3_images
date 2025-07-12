@@ -1,13 +1,17 @@
 from django.db import models
-from django.contrib.auth.models import User
 from storages.backends.s3boto3 import S3Boto3Storage
 
-from .utils import process_avatar
+from s3_avatars.models import CustomUser
+from s3_avatars.utils import process_avatar
 
 
-# Модель профиля пользователя с аватаром
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+class Avatar(models.Model):
+    user = models.ForeignKey(
+        CustomUser,
+        verbose_name=CustomUser._meta.verbose_name,
+        related_name='avatars',
+        on_delete=models.CASCADE,
+    )
     avatar = models.ImageField(
         upload_to='user_avatars/',
         null=True,
@@ -16,7 +20,7 @@ class UserProfile(models.Model):
     )
 
     def __str__(self):
-        return f'Profile: {self.user.username}'
+        return f'Avatar: {self.id}'
 
     def save(self, *args, **kwargs):
         if self.avatar and not getattr(self, 'avatar_processed', False):
