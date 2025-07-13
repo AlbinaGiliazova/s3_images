@@ -1,11 +1,14 @@
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, parsers, status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404
 
-from .models import CustomUser
+from .models import CustomUser, Avatar
 from .serializers import (
     RegisterSerializer,
     ChangePasswordSerializer,
+    AvatarSerializer,
 )
 
 
@@ -36,3 +39,43 @@ class ChangePasswordView(generics.UpdateAPIView):
             user.save()
             return Response({'status': 'Password updated'})
         return Response(serializer.errors, status=400)
+
+
+class UserAvatarUploadView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [parsers.MultiPartParser, parsers.FormParser]
+
+    def post(self, request, *args, **kwargs):
+        # Привязываем аватар строго к себе
+        data = request.data.copy()
+        data['user'] = request.user.id
+
+        serializer = AvatarSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AvatarListView(APIView):
+    permission_classes = [
+        permissions.AllowAny
+    ]  # Можно только IsAuthenticated, если нужно
+
+    def get(self, request):
+        user_id = request.query_params.get('user')
+        if user_id:
+            avatars = Avatar.objects.filter(user_id=user_id)
+        else:
+            avatars = Avatar.objects.all()
+        serializer = AvatarSerializer(avatars, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class AvatarDetailView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, pk):
+        avatar = get_object_or_404(Avatar, pk=pk)
+        serializer = AvatarSerializer(avatar)
+        return Response(serializer.data, status=status.HTTP_200_OK)
