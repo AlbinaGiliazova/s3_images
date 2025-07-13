@@ -1,15 +1,14 @@
-from django.contrib.auth.models import User
 from rest_framework.test import APIClient
 from django.core.files.uploadedfile import SimpleUploadedFile
 from storages.backends.s3boto3 import S3Boto3Storage
 
 from .fixtures import create_test_image, S3TestCase
-from s3_avatars.models import Avatar
+from s3_avatars.models import Avatar, CustomUser
 
 
 class AvatarsTestCase(S3TestCase):
     def test_multiple_avatars_for_one_user(self):
-        user = User.objects.create_user(username='demo')
+        user = CustomUser.objects.create_user(username='demo')
 
         img1 = SimpleUploadedFile(
             'avatar1.png', create_test_image().read(), content_type='image/png'
@@ -57,8 +56,8 @@ class AvatarsTestCase(S3TestCase):
         )
 
     def test_user_can_see_other_users_avatars(self):
-        user1 = User.objects.create_user(username='first', password='pass1')
-        user2 = User.objects.create_user(username='second', password='pass2')
+        user1 = CustomUser.objects.create_user(username='first', password='pass1')
+        user2 = CustomUser.objects.create_user(username='second', password='pass2')
 
         img = SimpleUploadedFile(
             'avatar.png', create_test_image().read(), content_type='image/png'
@@ -76,7 +75,7 @@ class AvatarsTestCase(S3TestCase):
         self.assertEqual(response.data[0]['user'], user1.id)
 
     def test_anon_user_can_see_other_users_avatars(self):
-        user1 = User.objects.create_user(username='first', password='pass1')
+        user1 = CustomUser.objects.create_user(username='first', password='pass1')
         img = SimpleUploadedFile(
             'avatar.png', create_test_image().read(), content_type='image/png'
         )
