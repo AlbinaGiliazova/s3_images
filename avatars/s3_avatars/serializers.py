@@ -24,6 +24,8 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 
 class AvatarSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+
     class Meta:
         model = Avatar
         fields = ('user', 'avatar')
