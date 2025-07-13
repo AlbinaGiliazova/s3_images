@@ -13,6 +13,8 @@ git clone <ссылка на репозиторий>
 cd avatars
 ```
 
+Переименуйте .env.example в .env
+
 2. Запустите инфраструктуру 
  ```
 docker-compose up --build
@@ -33,8 +35,6 @@ docker-compose exec django python manage.py test tests
 - Сторона изображения стала квадратной  
 - Файл лежит в S3 (MinIO)
 
-Тестовые креденшелы/конфиг S3
-Стандартные параметры подключены через docker-compose в виде переменных окружения (см. docker-compose.yml и ваш settings.py): переименуйте .env.example в .env и подставьте свои параметры.
 
 S3 (MinIO) доступен по адресу:  
 http://localhost:9001  
