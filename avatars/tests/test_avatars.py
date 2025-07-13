@@ -8,6 +8,7 @@ from s3_avatars.models import Avatar, CustomUser
 
 class AvatarsTestCase(S3TestCase):
     def test_multiple_avatars_for_one_user(self):
+        # Несколько аватаров у одного пользователя
         user = CustomUser.objects.create_user(username='demo')
 
         img1 = SimpleUploadedFile(
@@ -56,6 +57,7 @@ class AvatarsTestCase(S3TestCase):
         )
 
     def test_user_can_see_other_users_avatars(self):
+        # Авторизованный пользователь смотрит аватары другого.
         user1 = CustomUser.objects.create_user(username='first', password='pass1')
         user2 = CustomUser.objects.create_user(username='second', password='pass2')
 
@@ -75,6 +77,7 @@ class AvatarsTestCase(S3TestCase):
         self.assertEqual(response.data[0]['user'], user1.id)
 
     def test_anon_user_can_see_other_users_avatars(self):
+        # Аноним может смотреть чужие аватары.
         user1 = CustomUser.objects.create_user(username='first', password='pass1')
         img = SimpleUploadedFile(
             'avatar.png', create_test_image().read(), content_type='image/png'
