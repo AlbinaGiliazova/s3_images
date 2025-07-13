@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.middleware.csrf import get_token
 
 from .models import CustomUser, Avatar
 from .serializers import (
@@ -44,15 +45,19 @@ class ChangePasswordView(generics.UpdateAPIView):
 
 class UserAvatarUploadView(APIView):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
     parser_classes = [parsers.MultiPartParser, parsers.FormParser]
 
-    def post(self, request, *args, **kwargs):
-        # Привязываем аватар строго к себе
-        data = request.data.copy()
-        data['user'] = request.user.id
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated()]
 
-        serializer = AvatarSerializer(data=data)
+    def get(self, request, *args, **kwargs):
+        csrf_token = get_token(request)
+        return Response({'csrfToken': csrf_token}, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        serializer = AvatarSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)

@@ -32,9 +32,26 @@ services:
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: miniopassword
+      MINIO_BUCKET_NAME: avatars
     volumes:
       - minio_data:/data
       - ./minio-init:/docker-entrypoint-init.d
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://minio:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  createbucket:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      sh -c "
+        sleep 5;
+        /usr/bin/mc alias set myminio http://minio:9000 minioadmin miniopassword && \
+        /usr/bin/mc mb --ignore-existing myminio/avatars
+      "
 
 volumes:
   minio_data:
